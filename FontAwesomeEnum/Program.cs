@@ -11,6 +11,7 @@ namespace FontAwesomeEnum
         private static bool OptionHelp;
         private static string OptionInputPath;
         private static string OptionOutputPath;
+        private static string OptionCaseType;
 
         static void Main(string[] args)
         {
@@ -39,6 +40,7 @@ namespace FontAwesomeEnum
             OptionHelp = CommandLineUtilities.GetArgument("?", false);
             OptionInputPath = CommandLineUtilities.GetArgument<string>(0, null);
             OptionOutputPath = CommandLineUtilities.GetArgument<string>(1, "FontAwesomeEnum.cs");
+            OptionCaseType = CommandLineUtilities.GetArgument<string>(2, "camel");
 
             if (OptionHelp || Environment.GetCommandLineArgs().Length == 1)
             {
@@ -75,7 +77,13 @@ namespace FontAwesomeEnum
                         continue;
 
                     value = value.Substring(2, value.Length - 2 - 2);
-                    string name = Camel(line.Substring(varToken.Length, valuePos - varToken.Length));
+
+                    string name = string.Empty;
+                    if (OptionCaseType == "snake")
+                        name = Snake(line.Substring(varToken.Length, valuePos - varToken.Length));
+                    else
+                        name = Camel(line.Substring(varToken.Length, valuePos - varToken.Length));
+
                     enums.Add(new Tuple<string, string, string>(name, value, varName));
                 }
                 while (true);
@@ -186,6 +194,14 @@ namespace FontAwesomeEnum
             }
             return sb.ToString();
         }
+
+        static string Snake(string s)
+        {
+            if (s == null)
+                return s;
+            return s.Replace('-', '_');
+        }
+
 
         static string GetValidIdentifier(string text)
         {
